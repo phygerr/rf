@@ -1,0 +1,4 @@
+*** Settings ***
+Resource          mykey.txt
+
+*** Test Cases ***

@@ -1,0 +1,99 @@
+*** Settings ***
+Test Timeout      1 minute
+Library           Selenium2Library
+Resource          myKey.txt
+Library           OperatingSystem
+
+*** Test Cases ***
+UCC_MANO_VIM_01500 NFVO支持VIM接入
+    登录    http://12.0.22.100:5001    #登录MANO
+    Set Selenium Implicit Wait    30    #设置智能等待时间
+    Get Selenium Implicit Wait    #智能等待
+    Click Element    xpath=//*[@id="menu-product"]/dt    #点击VIM管理菜单
+    sleep    1
+    Click Link    vim 资源接入    #点击vim资源接入
+    Select Frame    xpath=//*[@id="iframe_box"]/div[2]/iframe    #选择frame
+    sleep    1
+    click link    添加    #点击添加
+    Get Selenium Implicit Wait
+    Select Frame    xpath=//*[@id="layui-layer-iframe2"]    #选择frame
+    input text    xpath=//*[@id="form-resource-add"]/div[1]/div/input    test    #vim_name
+    input text    xpath=//*[@id="form-resource-add"]/div[3]/div/input    1.1.1.1    #vim_ip
+    Click Element    xpath=//*[@id="form-resource-add"]/div[6]/div/input    #点击添加
+    sleep    2    #休眠2秒
+    click element    xpath=//*[@id="layui-layer2"]/div[3]/a    #点击确定
+    Get Selenium Implicit Wait
+    Select Frame    xpath=//*[@id="iframe_box"]/div[2]/iframe    #回到左主frame
+    ${status}    Get Text    xpath=/html/body/div/div[2]/div/table/tbody/tr[3]/td[6]    #vim_status
+    run key word if    '${status}'=='connected'    log    connected success
+    ...    ELSE    log    connected failed
+    [Teardown]
+
+UCC_MANO_VIM_01501 NFVO支持VIM状态监控
+    复位    #重新加载页面
+    Set Selenium Implicit Wait    30
+    Get Selenium Implicit Wait
+    Click Element    xpath=//*[@id="menu-product"]/dt
+    sleep    1
+    Click Link    vim 资源接入
+    Select Frame    xpath=//*[@id="iframe_box"]/div[2]/iframe
+    sleep    2
+    comment    获取VIM展示界面当前的行数
+    ${tr}    Execute Javascript    len=$("tbody").find("tr").length;return len;
+    log    ${tr}
+    ${tt}    evaluate    ${tr}+1
+    comment    循环打印各VIM的连接状态
+    : FOR    ${i}    IN RANGE    2    ${tt}
+    \    ${xpath}    Catenate    /html/body/div/div[2]/div/table/tbody/tr[    ${i}    ]/td[6]
+    \    ${status}    get text    xpath=${xpath}
+    \    log    ${status}
+    [Teardown]
+
+UCC_MANO_VIM_01503 NFVO支持VIM修改
+    复位    #重新加载页面
+    Set Selenium Implicit Wait    30
+    Get Selenium Implicit Wait
+    Click Element    xpath=//*[@id="menu-product"]/dt
+    sleep    1
+    Click Link    vim 资源接入
+    Select Frame    xpath=//*[@id="iframe_box"]/div[2]/iframe
+    #Execute Javascript    resource_edit('资源编辑',encodeParameter('resource-edit.html?id=test'),'500','400')    #修改指定VIM信息
+    sleep    2
+    click element    xpath=/html/body/div/div[2]/div/table/tbody/tr[3]/td[8]/a[1]    #点击修改按钮，需要动态修改
+    #Execute Javascript    $("input#CONTROLLERIP").val("6.6.6.6");
+    sleep    1
+    click element    css=#layui-layer2 > span > a.layui-layer-ico.layui-layer-max    #点击放大修改窗口
+    sleep    2
+    select frame    id=layui-layer-iframe2    #选择frame
+    input text    css=#CONTROLLERIP    6.6.6.6
+    sleep    1
+    Execute Javascript    submitDataone()    #执行提交方法
+    sleep    1
+    click link    确定
+    sleep    2
+    select frame    xpath=//*[@id="iframe_box"]/div[2]/iframe    #选择右主frame
+    ${ip}    get text    xpath=/html/body/div/div[2]/div/table/tbody/tr[3]/td[4]    #获取修改后的ip
+    run keyword if    '${ip}'=='6.6.6.6'    log    update success
+    ...    ELSE    log    update failed
+    [Teardown]
+
+UCC_MANO_VIM_01502 NFVO支持VIM删除
+    复位    #重新加载页面
+    Set Selenium Implicit Wait    30
+    Get Selenium Implicit Wait
+    Click Element    xpath=//*[@id="menu-product"]/dt    #点击vim管理
+    sleep    1
+    Click Link    vim 资源接入
+    Select Frame    xpath=//*[@id="iframe_box"]/div[2]/iframe    #选择右主frame
+    sleep    2
+    ${tr1}    Execute Javascript    len=$("tbody").find("tr").length;return len;    #获取当前表格的行数
+    log    ${tr1}
+    execute javascript    resource_del('test')    #删除测试vim
+    Get Selenium Implicit Wait
+    click link    确定
+    sleep    2
+    ${tr2}    Execute Javascript    len=$("tbody").find("tr").length;return len;    #获取当前表格的行数
+    log    ${tr2}
+    Run Keyword If    ${tr1}>${tr2}    log    delete success
+    ...    ELSE    log    delete failed
+    [Teardown]

@@ -1,0 +1,95 @@
+*** Settings ***
+Test Timeout      1 minute
+Library           Selenium2Library
+Resource          myKey.txt
+Library           OperatingSystem
+
+*** Test Cases ***
+UCC_MANO_VNFP_01000 NFVO支持VNF package上载
+    复位
+    Get Selenium Implicit Wait
+    click element    xpath=/html/body/aside/div/dl[2]/dt    #点击包管理
+    sleep    1
+    click link    上传管理    #点击上传管理
+    Select Frame    xpath=//*[@id="iframe_box"]/div[2]/iframe    #选择右主frame
+    Select From List By Value    name=brandclass    NS    #选择包类型
+    input text    xpath=//*[@id="upload"]    C:\\Users\\lifei4\\Desktop\\nsd.tar    #传入文件路径
+    click button    xpath=/html/body/div[2]/div[1]/button    #点击上传按钮
+    sleep    1
+    ${status}    get text    xpath=//*[@id="percent"]    #获取上传状态
+    #click element    xpath=//*[@id="packageDataTable"]/tbody/tr[5]/td[5]/div/div/label    #点击加载按钮加载包
+    #click link    确认    #确认加载
+    log    ${status}    #打印上传状态
+    sleep    2
+    [Teardown]
+
+UCC_MANO_VNFP_01005 NFVO支持VNF package禁用
+    复位    #重新加载页面
+    Set Selenium Implicit Wait    30
+    Get Selenium Implicit Wait
+    click element    xpath=/html/body/aside/div/dl[2]/dt    #点击包管理
+    sleep    1
+    click link    上传管理    #点击上传管理
+    Select Frame    xpath=//*[@id="iframe_box"]/div[2]/iframe    #选择右主frame
+    click element    xpath=//*[@id="packageDataTable"]/tbody/tr[5]/td[4]/div/div/label    #点击禁用package
+    click link    确认    #确认禁用
+    sleep    1
+    ${status}    Execute Javascript    document.getElementById("enableswitch4").checked==true;
+    run keyword if    '${status}'=='false'    log    禁用成功
+    ...    ELSE    log    禁用失败
+
+UCC_MANO_VNFP_01004 NFVO支持VNF package启用
+    复位    #重新加载页面
+    Set Selenium Implicit Wait    30
+    Get Selenium Implicit Wait
+    click element    xpath=/html/body/aside/div/dl[2]/dt    #点击包管理
+    sleep    1
+    click link    上传管理    #点击上传管理
+    Select Frame    xpath=//*[@id="iframe_box"]/div[2]/iframe    #选择右主frame
+    click element    xpath=//*[@id="packageDataTable"]/tbody/tr[5]/td[4]/div/div/label    #点击启用package
+    click link    确认    #确认启用
+    sleep    1
+    ${status}    Execute Javascript    document.getElementById("enableswitch4").checked==true;
+    run keyword if    '${status}'=='true'    log    启用成功
+    ...    ELSE    log    启用失败
+
+UCC_MANO_VNFP_01002 NFVO支持VNF package更新
+    复位    #重新加载页面
+    Set Selenium Implicit Wait    30
+    Get Selenium Implicit Wait
+    click element    xpath=/html/body/aside/div/dl[2]/dt    #点击包管理
+    sleep    1
+    click link    上传管理    #点击上传管理
+    Select Frame    xpath=//*[@id="iframe_box"]/div[2]/iframe    #选择右主frame
+    Select From List By Value    name=brandclass    NS    #选择包类型
+    input text    xpath=//*[@id="upload"]    C:\\Users\\lifei4\\Desktop\\nsd.tar    #传入文件路径
+    click button    xpath=/html/body/div[2]/div[1]/button    #点击上传按钮
+    sleep    1
+    click link    确认    #确认覆盖
+    sleep    1
+    ${status}    get text    xpath=//*[@id="percent"]    #获取上传状态
+    click element    xpath=//*[@id="packageDataTable"]/tbody/tr[5]/td[5]/div/div/label    #点击加载按钮加载包
+    click link    确认    #确认加载
+    log    ${status}    #打印上传状态    #缺少更新状态成功与否
+
+UCC_MANO_VNFP_01003 NFVO支持VNF package删除
+    复位    #重新加载页面
+    Set Selenium Implicit Wait    30
+    Get Selenium Implicit Wait
+    click element    xpath=/html/body/aside/div/dl[2]/dt    #点击包管理
+    sleep    1
+    click link    上传管理    #点击上传管理
+    Select Frame    xpath=//*[@id="iframe_box"]/div[2]/iframe    #选择右主frame
+    ${tr1}    Execute Javascript    len=$("tbody").find("tr").length;return len;
+    click element    xpath=//*[@id="packageDataTable"]/tbody/tr[5]/td[5]/div/div    #卸载包
+    sleep    1
+    click element    class=layui-layer-btn0
+    sleep    1
+    click element    xpath=//*[contains(@onclick,"this,'nsd.tar'")]
+    sleep    1
+    click link    确定
+    sleep    2
+    ${tr2}    Execute Javascript    len=$("tbody").find("tr").length;return len;
+    run keyword if    ${tr1}>${tr2}    log    delete package seccess
+    ...    ELSE    log    delete package failed
+    [Teardown]    closedriver

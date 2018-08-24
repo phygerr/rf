@@ -1,0 +1,30 @@
+*** Settings ***
+Library           AutoItLibrary
+
+*** Test Cases ***
+calc
+    run    calc.exe
+    Wait For Active Window    计算器
+    Control Click    计算器    \    Button5
+    Control Click    计算器    \    Button23
+    Control Click    计算器    \    Button5
+    Control Click    计算器    \    Button28
+    ${oo}    win Get Text    计算器
+    log    ${oo}
+
+HPS
+    run    explorer.exe
+    sleep    1
+    send    !{SPACE}x
+    Control Click    \    \    ToolbarWindow322
+    sleep    1
+    send    F:\\工具\\TD-HPS\\HPS_5G_Final_1\\tdhps{ENTER}
+    Mouse Click    LEFT    217    595    2
+    Sleep    8
+    Send    !{x}
+    Send    ^{x}
+    sleep    2
+    Send    !{v}
+    Send    ^{w}
+    sleep    1
+    send    \F:\\工具\\TD-HPS\\HPS_5G_Final_1\\tdhps\\script\\90版本\\UE注册.tsf{ENTER}

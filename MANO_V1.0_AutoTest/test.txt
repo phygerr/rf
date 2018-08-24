@@ -1,0 +1,16 @@
+*** Settings ***
+Library           Selenium2Library
+Resource          myKey.txt
+Library           TxtLibrary
+
+*** Test Cases ***
+1
+    openbrowser    http://12.0.22.2/admin/    chrome
+    inputtext    id=id_username    admin
+    inputtext    id=id_password    DT.datang123
+    click element    xpath=//*[@id="loginBtn"]/span[2]
+    Page Should Contain Link    Phoenix Cloud Manager
+    click element    xpath=//*[@id="date_form"]/button
+    sleep    2
+    ${info}    get text    xpath=//*[@id="global_usage"]
+    [Teardown]    closedriver

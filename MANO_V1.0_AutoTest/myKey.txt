@@ -1,0 +1,27 @@
+*** Settings ***
+Library           Selenium2Library
+Library           OperatingSystem
+
+*** Variables ***
+${name}           admin
+${passwd}         789456
+
+*** Keywords ***
+登录
+    [Arguments]    ${url}
+    open browser    ${url}    chrome
+    Set Selenium Implicit Wait    30
+    Get Selenium Implicit Wait
+    Maximize Browser Window
+    input text    name=username    ${name}
+    input text    name=password    ${passwd}
+    click element    xpath=//*[@id="sb_f"]/div[3]/div/input
+
+复位
+    Reload Page
+
+closedriver
+    ${RunOutput}=    OperatingSystem.Run    taskkill /IM "chromedriver.exe" /T /F
+
+报告路径参数
+    -d E:\autoTest\MANO_V1.0_AutoTest\report
